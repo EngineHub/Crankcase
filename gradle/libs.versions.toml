@@ -5,7 +5,7 @@
 checkstyle = "13.3.0"
 errorProne = "2.48.0"
 junit = "6.1.0"
-crankcase = "0.1.0-20260705.071425-1"
+crankcase = "0.1.0-20260705.083130-2"
 
 [libraries]
 levelHeadered = "net.octyl.level-headered:net.octyl.level-headered.gradle.plugin:0.1.2"
@@ -28,3 +28,6 @@ junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter-api.module = "org.junit.jupiter:junit-jupiter-api"
 junit-jupiter-params.module = "org.junit.jupiter:junit-jupiter-params"
 junit-jupiter-engine.module = "org.junit.jupiter:junit-jupiter-engine"
+
+[plugins]
+crankcase-release = { id = "org.enginehub.crankcase.release", version.ref = "crankcase" }

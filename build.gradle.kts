@@ -3,4 +3,5 @@
 
 plugins {
     id("buildlogic.common") apply false
+    alias(libs.plugins.crankcase.release)
 }
