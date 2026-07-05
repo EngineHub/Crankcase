@@ -15,6 +15,9 @@ repositories {
 
 dependencies {
     implementation(gradleApi())
-    implementation(libs.levelHeadered)
     implementation(libs.publish.plugin)
+    implementation(libs.crankcase.common)
+    implementation(libs.crankcase.checkstyle)
+    implementation(libs.crankcase.licensing)
+    implementation(libs.crankcase.publishing)
 }

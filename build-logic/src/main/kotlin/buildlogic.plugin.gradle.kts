@@ -6,11 +6,11 @@ import buildlogic.stringyLibs
 import buildlogic.getLibrary
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.jvm.toolchain.JavaLanguageVersion
-import java.util.concurrent.Callable
 
 plugins {
     `java-gradle-plugin`
     id("com.gradle.plugin-publish")
+    id("org.enginehub.crankcase.publishing")
     id("buildlogic.common")
 }
 
@@ -35,29 +35,6 @@ publishing {
     publications {
         create<MavenPublication>("pluginMaven") {
             artifactId = project.name.removePrefix("crankcase-")
-        }
-    }
-    // TODO: remove after published using published plugins
-    repositories {
-        maven {
-            name = "EngineHub"
-            val contextUrl = providers.gradleProperty("artifactory_contextUrl")
-                .getOrElse("https://localhost")
-            val artifactoryUser = providers.gradleProperty("artifactory_user")
-            val artifactoryPassword = providers.gradleProperty("artifactory_password")
-            setUrl(Callable {
-                val version = project.version.toString()
-                if (version == "unspecified") {
-                    throw GradleException("requires `project.version` to be set before publishing.")
-                }
-                val repoPath =
-                    if (version.contains("SNAPSHOT")) "libs-snapshot-local" else "libs-release-local"
-                "$contextUrl/$repoPath"
-            })
-            credentials {
-                username = artifactoryUser.orNull
-                password = artifactoryPassword.orNull
-            }
         }
     }
 }

@@ -5,10 +5,16 @@
 checkstyle = "13.3.0"
 errorProne = "2.48.0"
 junit = "6.1.0"
+crankcase = "0.1.0-20260705.071425-1"
 
 [libraries]
 levelHeadered = "net.octyl.level-headered:net.octyl.level-headered.gradle.plugin:0.1.2"
 publish-plugin = "com.gradle.publish:plugin-publish-plugin:2.1.1"
+
+crankcase-common = { module = "org.enginehub.crankcase:common", version.ref = "crankcase" }
+crankcase-checkstyle = { module = "org.enginehub.crankcase:checkstyle", version.ref = "crankcase" }
+crankcase-licensing = { module = "org.enginehub.crankcase:licensing", version.ref = "crankcase" }
+crankcase-publishing = { module = "org.enginehub.crankcase:publishing", version.ref = "crankcase" }
 
 japicmp = "me.champeau.gradle:japicmp-gradle-plugin:0.4.6"
 gson = "com.google.code.gson:gson:2.14.0"
