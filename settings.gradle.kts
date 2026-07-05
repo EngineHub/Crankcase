@@ -52,6 +52,7 @@ include(
     "crankcase-java-library",
     "crankcase-licensing",
     "crankcase-publishing",
+    "crankcase-release",
     "crankcase-repo-reconfiguration",
     "crankcase-test-support",
 )
