@@ -5,7 +5,7 @@
 checkstyle = "13.3.0"
 errorProne = "2.48.0"
 junit = "6.1.0"
-crankcase = "0.1.0-20260705.083130-2"
+crankcase = "0.1.0"
 
 [libraries]
 levelHeadered = "net.octyl.level-headered:net.octyl.level-headered.gradle.plugin:0.1.2"
