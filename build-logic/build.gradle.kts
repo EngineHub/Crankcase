@@ -9,7 +9,7 @@ repositories {
     gradlePluginPortal()
     maven {
         name = "EngineHub Repository"
-        url = uri("https://maven.enginehub.org/repo/")
+        url = uri("https://repo.enginehub.org/libs-release/")
     }
 }
 

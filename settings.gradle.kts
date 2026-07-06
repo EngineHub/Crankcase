@@ -5,36 +5,27 @@ pluginManagement {
     repositories {
         maven {
             name = "EngineHub"
-            url = uri("https://maven.enginehub.org/repo/")
+            url = uri("https://repo.enginehub.org/libs-release/")
         }
-        gradlePluginPortal()
+        maven {
+            name = "EngineHub Central Mirror"
+            url = uri("https://repo.enginehub.org/internal/maven-central-proxy/")
+        }
+        maven {
+            name = "EngineHub Plugin Portal Mirror"
+            url = uri("https://repo.enginehub.org/internal/plugin-portal-proxy/")
+        }
     }
 }
 plugins {
+    id("org.enginehub.crankcase.repo-reconfiguration") version "0.1.0"
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 dependencyResolutionManagement {
     repositories {
         maven {
             name = "EngineHub"
-            url = uri("https://maven.enginehub.org/repo/")
-        }
-        gradle.settingsEvaluated {
-            // Duplicates repositoriesHelper.kt, since we can't import it
-            val allowedPrefixes = listOf(
-                "https://maven.enginehub.org",
-                "https://repo.maven.apache.org/maven2/",
-                "file:"
-            )
-
-            for (repo in this@repositories) {
-                if (repo is MavenArtifactRepository) {
-                    val urlString = repo.url.toString()
-                    check(allowedPrefixes.any { urlString.startsWith(it) }) {
-                        "Only EngineHub/Central repositories are allowed: ${repo.url} found"
-                    }
-                }
-            }
+            url = uri("https://repo.enginehub.org/libs-release/")
         }
     }
 }
