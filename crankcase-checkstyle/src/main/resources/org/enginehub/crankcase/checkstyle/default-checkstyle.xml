@@ -113,7 +113,9 @@ Checks based on Google Checks, modified for EngineHub.
         <module name="UseEnhancedSwitch"/>
         <module name="WhenShouldBeUsed"/>
         <module name="ModifierOrder"/>
-        <module name="RedundantModifier"/>
+        <module name="RedundantModifier">
+            <property name="jdkVersion" value="CRANKCASE_JAVA_RELEASE"/>
+        </module>
         <module name="EmptyLineSeparator">
             <property name="allowNoEmptyLineBetweenFields" value="true"/>
         </module>
@@ -192,6 +194,10 @@ Checks based on Google Checks, modified for EngineHub.
         </module>
         <module name="RedundantImport"/>
         <module name="UnusedImports"/>
+        <module name="UnusedLocalVariable">
+            <property name="jdkVersion" value="CRANKCASE_JAVA_RELEASE"/>
+        </module>
+        <!--CRANKCASE_JAVA_VERSION_MODULES-->
         <module name="MethodParamPad"/>
         <module name="OperatorWrap">
             <property name="option" value="NL"/>
@@ -217,6 +223,7 @@ Checks based on Google Checks, modified for EngineHub.
         <module name="JavadocParagraph"/>
         <module name="HideUtilityClassConstructor"/>
         <module name="InterfaceIsType"/>
+        <module name="SealedShouldHavePermitsList"/>
         <module name="AtclauseOrder">
             <property name="tagOrder" value="@param, @return, @throws, @deprecated"/>
             <property name="target" value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, METHOD_DEF, CTOR_DEF, VARIABLE_DEF"/>

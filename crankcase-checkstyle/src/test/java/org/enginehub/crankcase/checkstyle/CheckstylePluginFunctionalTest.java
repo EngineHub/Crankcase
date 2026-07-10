@@ -78,6 +78,83 @@ class CheckstylePluginFunctionalTest {
         );
     }
 
+    private void writeJavaPluginBuild(String extraConfig) throws IOException {
+        Files.writeString(
+            projectDir.resolve("build.gradle.kts"),
+            """
+            plugins {
+                id("org.enginehub.crankcase.java")
+                id("org.enginehub.crankcase.checkstyle")
+            }
+            repositories { mavenCentral() }
+            %s
+            """.formatted(extraConfig)
+        );
+    }
+
+    private void writeUnusedLocalVariableSource() throws IOException {
+        Path source = projectDir.resolve("src/main/java/example/Example.java");
+        Files.createDirectories(source.getParent());
+        Files.writeString(
+            source,
+            """
+            package example;
+
+            class Example {
+                boolean check() {
+                    int unused = 1;
+                    return true;
+                }
+            }
+            """
+        );
+    }
+
+    private void writeUnusedPatternVariableSource() throws IOException {
+        Path source = projectDir.resolve("src/main/java/example/Example.java");
+        Files.createDirectories(source.getParent());
+        Files.writeString(
+            source,
+            """
+            package example;
+
+            class Example {
+                String check(Object value) {
+                    return switch (value) {
+                        case String text -> "string";
+                        default -> "other";
+                    };
+                }
+            }
+            """
+        );
+    }
+
+    private void writeUnusedCatchParameterSource() throws IOException {
+        Path source = projectDir.resolve("src/main/java/example/Example.java");
+        Files.createDirectories(source.getParent());
+        Files.writeString(
+            source,
+            """
+            package example;
+
+            class Example {
+                boolean check(String value) {
+                    try {
+                        return Boolean.parseBoolean(value);
+                    } catch (RuntimeException e) {
+                        return false;
+                    }
+                }
+            }
+            """
+        );
+    }
+
+    private String generatedConfig() throws IOException {
+        return Files.readString(projectDir.resolve("build/crankcase/checkstyle/checkstyle.xml"));
+    }
+
     private void writeSuppressionsFile(Path path) throws IOException {
         Files.createDirectories(path.getParent());
         Files.writeString(
@@ -127,7 +204,7 @@ class CheckstylePluginFunctionalTest {
             """
         );
         BuildResult result = runner("printCheckstyleVersion").build();
-        assertThat(result).output().contains("checkstyle-version=13.3.0");
+        assertThat(result).output().contains("checkstyle-version=13.7.0");
     }
 
     @Test
@@ -177,5 +254,104 @@ class CheckstylePluginFunctionalTest {
         CrankcaseTestKit.assertConfigCacheStoredThenReused(
             runner("checkstyleMain", "--configuration-cache")
         );
+    }
+
+    @Test
+    void configurationCacheIsReusedWithJavaRelease() throws IOException {
+        writeBuild("crankcaseCheckstyle { javaRelease = 22 }");
+        writeCleanSource();
+        CrankcaseTestKit.assertConfigCacheStoredThenReused(
+            runner("checkstyleMain", "--configuration-cache")
+        );
+    }
+
+    @Test
+    void javaReleaseBelow21Fails() throws IOException {
+        writeBuild("crankcaseCheckstyle { javaRelease = 17 }");
+        writeCleanSource();
+        BuildResult result = runner("crankcasePrepareCheckstyleConfig").buildAndFail();
+        assertThat(result).output()
+            .contains("Crankcase requires Java 21 or later, but javaRelease is 17");
+    }
+
+    @Test
+    void javaReleaseDefaultsTo21() throws IOException {
+        writeBuild("");
+        writeCleanSource();
+        runner("crankcasePrepareCheckstyleConfig").build();
+
+        String config = generatedConfig();
+        assertThat(config).contains("value=\"21\"");
+        assertThat(config).doesNotContain("UnusedCatchParameterShouldBeUnnamed");
+        assertThat(config).doesNotContain("UnusedLambdaParameterShouldBeUnnamed");
+        assertThat(config).doesNotContain("UnusedTryResourceShouldBeUnnamed");
+    }
+
+    @Test
+    void unusedLocalVariableIsReported() throws IOException {
+        writeBuild("");
+        writeUnusedLocalVariableSource();
+        BuildResult result = runner("checkstyleMain").buildAndFail();
+        assertThat(result).task(":checkstyleMain").failed();
+        assertThat(result).output().contains("Unused named local variable 'unused'");
+    }
+
+    @Test
+    void unusedNamedPatternVariableIsIgnoredBelowJava22() throws IOException {
+        writeBuild("");
+        writeUnusedPatternVariableSource();
+        BuildResult result = runner("checkstyleMain").build();
+        assertThat(result).task(":checkstyleMain").succeeded();
+    }
+
+    @Test
+    void unusedNamedPatternVariableIsReportedFromJava22() throws IOException {
+        writeBuild("crankcaseCheckstyle { javaRelease = 22 }");
+        writeUnusedPatternVariableSource();
+        BuildResult result = runner("checkstyleMain").buildAndFail();
+        assertThat(result).task(":checkstyleMain").failed();
+        assertThat(result).output().contains("Unused named local variable 'text'");
+    }
+
+    @Test
+    void unnamedVariableChecksAppearOnlyFromJava22() throws IOException {
+        writeBuild("crankcaseCheckstyle { javaRelease = 22 }");
+        writeUnusedCatchParameterSource();
+        BuildResult result = runner("checkstyleMain").buildAndFail();
+        assertThat(result).task(":checkstyleMain").failed();
+        assertThat(result).output().contains("Unused catch parameter");
+
+        String config = generatedConfig();
+        assertThat(config).contains("UnusedCatchParameterShouldBeUnnamed");
+        assertThat(config).contains("UnusedLambdaParameterShouldBeUnnamed");
+        assertThat(config).contains("UnusedTryResourceShouldBeUnnamed");
+    }
+
+    @Test
+    void unusedCatchParameterIsIgnoredBelowJava22() throws IOException {
+        writeBuild("");
+        writeUnusedCatchParameterSource();
+        BuildResult result = runner("checkstyleMain").build();
+        assertThat(result).task(":checkstyleMain").succeeded();
+    }
+
+    @Test
+    void javaReleaseIsWiredFromCrankcaseJava() throws IOException {
+        writeJavaPluginBuild("crankcaseJava { javaRelease = 22 }");
+        writeCleanSource();
+        runner("crankcasePrepareCheckstyleConfig").build();
+
+        String config = generatedConfig();
+        assertThat(config).contains("value=\"22\"");
+        assertThat(config).contains("UnusedCatchParameterShouldBeUnnamed");
+    }
+
+    @Test
+    void javaReleaseFromCrankcaseJavaBelow21Fails() throws IOException {
+        writeJavaPluginBuild("crankcaseJava { javaRelease = 17 }");
+        writeCleanSource();
+        BuildResult result = runner("crankcasePrepareCheckstyleConfig").buildAndFail();
+        assertThat(result).output()
+            .contains("Crankcase requires Java 21 or later, but javaRelease is 17");
     }
 }

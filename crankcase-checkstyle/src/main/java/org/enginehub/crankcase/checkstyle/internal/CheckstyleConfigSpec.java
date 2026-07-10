@@ -19,6 +19,9 @@ interface CheckstyleConfigSpec {
     @Input
     Property<String> getDefaultContent();
 
+    @Input
+    Property<Integer> getJavaRelease();
+
     @InputFile
     @Optional
     @PathSensitive(PathSensitivity.NONE)

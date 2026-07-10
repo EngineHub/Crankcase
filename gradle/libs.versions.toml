@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: CC0-1.0
 
 [versions]
-checkstyle = "13.3.0"
+checkstyle = "13.7.0"
 errorProne = "2.48.0"
 junit = "6.1.0"
 crankcase = "0.1.0"

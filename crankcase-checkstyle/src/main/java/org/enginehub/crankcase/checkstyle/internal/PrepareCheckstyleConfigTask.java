@@ -29,6 +29,8 @@ public abstract class PrepareCheckstyleConfigTask extends DefaultTask implements
             <property name="file" value="${config_loc}/checkstyle-suppression.xml"/>
         </module>
         """;
+    private static final String JAVA_RELEASE_TOKEN = "CRANKCASE_JAVA_RELEASE";
+    private static final String JAVA_VERSION_MODULES_TOKEN = "<!--CRANKCASE_JAVA_VERSION_MODULES-->";
 
     @Inject
     protected abstract WorkerExecutor getWorkerExecutor();
@@ -37,6 +39,7 @@ public abstract class PrepareCheckstyleConfigTask extends DefaultTask implements
     public void prepare() {
         getWorkerExecutor().noIsolation().submit(PrepareAction.class, params -> {
             params.getDefaultContent().set(getDefaultContent());
+            params.getJavaRelease().set(getJavaRelease());
             params.getSuppressions().set(getSuppressions());
             params.getOutputDirectory().set(getOutputDirectory());
         });
@@ -51,11 +54,13 @@ public abstract class PrepareCheckstyleConfigTask extends DefaultTask implements
             Parameters params = getParameters();
             Path outDir = params.getOutputDirectory().getAsFile().get().toPath();
             boolean includeSuppressions = params.getSuppressions().getOrNull() != null;
+            int javaRelease = params.getJavaRelease().get();
             try {
                 Files.createDirectories(outDir);
-                String content = params.getDefaultContent().get().replace(
-                    SUPPRESSION_TOKEN, includeSuppressions ? SUPPRESSION_FILTER_MODULE : ""
-                );
+                String content = params.getDefaultContent().get()
+                    .replace(SUPPRESSION_TOKEN, includeSuppressions ? SUPPRESSION_FILTER_MODULE : "")
+                    .replace(JAVA_RELEASE_TOKEN, Integer.toString(javaRelease))
+                    .replace(JAVA_VERSION_MODULES_TOKEN, JavaVersionGatedModules.render(javaRelease));
                 Files.writeString(outDir.resolve("checkstyle.xml"), content, StandardCharsets.UTF_8);
 
                 Path suppressionTarget = outDir.resolve("checkstyle-suppression.xml");
