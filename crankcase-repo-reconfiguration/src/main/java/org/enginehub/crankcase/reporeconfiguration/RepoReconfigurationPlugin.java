@@ -243,6 +243,7 @@ public class RepoReconfigurationPlugin implements Plugin<Settings> {
                         content.releasesOnly();
                         content.includeGroupAndSubgroups("com.sk89q");
                         content.includeGroupAndSubgroups("org.enginehub");
+                        content.includeGroup("org.khelekore");
                     });
                     maven.metadataSources(sources -> {
                         sources.gradleMetadata();
