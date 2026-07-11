@@ -18,4 +18,11 @@ public abstract class JavaExtension {
     public abstract Property<String> getErrorproneVersion();
 
     public abstract Property<String> getJunitVersion();
+
+    /**
+     * Whether compiler and Javadoc warnings should fail the build (via {@code -Werror}).
+     *
+     * <p>Defaults to {@code true}.</p>
+     */
+    public abstract Property<Boolean> getFailOnWarnings();
 }

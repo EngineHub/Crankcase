@@ -10,6 +10,7 @@ import net.ltgt.gradle.errorprone.ErrorPronePlugin;
 import org.enginehub.crankcase.common.CommonPlugin;
 import org.enginehub.crankcase.common.CrankcaseVersions;
 import org.enginehub.crankcase.java.internal.DisabledLintsArgumentProvider;
+import org.enginehub.crankcase.java.internal.FailOnWarningsArgumentProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -33,6 +34,7 @@ public abstract class JavaPlugin implements Plugin<Project> {
         var ext = project.getExtensions().create("crankcaseJava", JavaExtension.class);
         ext.getErrorproneVersion().convention(CrankcaseVersions.ERROR_PRONE);
         ext.getJunitVersion().convention(CrankcaseVersions.JUNIT);
+        ext.getFailOnWarnings().convention(true);
 
         project.getExtensions().getByType(JavaPluginExtension.class).getToolchain().getLanguageVersion()
             .set(ext.getJavaRelease().map(JavaLanguageVersion::of));
@@ -41,9 +43,11 @@ public abstract class JavaPlugin implements Plugin<Project> {
             .matching(t -> t.getName().equals("compileJava") || t.getName().equals("compileTestJava"))
             .configureEach(t -> {
                 t.getOptions().getRelease().set(ext.getJavaRelease());
-                t.getOptions().getCompilerArgs().addAll(List.of("-Xlint:all", "-parameters", "-Werror"));
+                t.getOptions().getCompilerArgs().addAll(List.of("-Xlint:all", "-parameters"));
                 t.getOptions().getCompilerArgumentProviders()
                     .add(new DisabledLintsArgumentProvider(ext.getDisabledLints()));
+                t.getOptions().getCompilerArgumentProviders()
+                    .add(new FailOnWarningsArgumentProvider(ext.getFailOnWarnings()));
                 t.getOptions().setDeprecation(true);
                 t.getOptions().setEncoding("UTF-8");
                 var ep = ((ExtensionAware) t.getOptions()).getExtensions().getByType(ErrorProneOptions.class);
@@ -77,7 +81,7 @@ public abstract class JavaPlugin implements Plugin<Project> {
         project.getTasks().withType(Javadoc.class).configureEach(t -> {
             t.getOptions().setEncoding("UTF-8");
             var opts = (StandardJavadocDocletOptions) t.getOptions();
-            opts.addBooleanOption("Werror", true);
+            opts.addBooleanOption("Werror", ext.getFailOnWarnings().get());
             opts.addBooleanOption("Xdoclint:all", true);
             opts.addBooleanOption("Xdoclint:-missing", true);
             opts.tags(List.of(

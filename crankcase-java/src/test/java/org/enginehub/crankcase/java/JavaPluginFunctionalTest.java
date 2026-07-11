@@ -72,6 +72,26 @@ class JavaPluginFunctionalTest {
         );
     }
 
+    private void writeJavadocWarningSource() throws IOException {
+        Path source = projectDir.resolve("src/main/java/example/Example.java");
+        Files.createDirectories(source.getParent());
+        Files.writeString(
+            source,
+            """
+            package example;
+
+            public class Example {
+                /**
+                 * Text with an empty paragraph.
+                 * <p>
+                 */
+                public void foo() {
+                }
+            }
+            """
+        );
+    }
+
     private GradleRunner runner(String... args) {
         return CrankcaseTestKit.runner(projectDir, args);
     }
@@ -114,6 +134,44 @@ class JavaPluginFunctionalTest {
         writeCastWarningSource();
         BuildResult result = runner("compileJava").buildAndFail();
         assertThat(result).task(":compileJava").failed();
+    }
+
+    @Test
+    void failOnWarningsFalseAllowsWarningToCompile() throws IOException {
+        writeBuild(
+            """
+            crankcaseJava {
+              javaRelease = 21
+              failOnWarnings = false
+            }
+            """
+        );
+        writeCastWarningSource();
+        BuildResult result = runner("compileJava").build();
+        assertThat(result).task(":compileJava").succeeded();
+    }
+
+    @Test
+    void javadocWarningIsFatalByDefault() throws IOException {
+        writeBuild("crankcaseJava { javaRelease = 21 }");
+        writeJavadocWarningSource();
+        BuildResult result = runner("javadoc").buildAndFail();
+        assertThat(result).task(":javadoc").failed();
+    }
+
+    @Test
+    void failOnWarningsFalseAllowsJavadocWarning() throws IOException {
+        writeBuild(
+            """
+            crankcaseJava {
+              javaRelease = 21
+              failOnWarnings = false
+            }
+            """
+        );
+        writeJavadocWarningSource();
+        BuildResult result = runner("javadoc").build();
+        assertThat(result).task(":javadoc").succeeded();
     }
 
     @Test
