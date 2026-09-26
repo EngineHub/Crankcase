@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MPL-2.0
 
 import buildlogic.PluginExtension
+import buildlogic.TestParallelismLimiter
 import buildlogic.stringyLibs
 import buildlogic.getLibrary
 import org.gradle.api.plugins.JavaPluginExtension
@@ -51,8 +52,15 @@ tasks
         options.encoding = "UTF-8"
     }
 
+val testParallelismLimiter = gradle.sharedServices.registerIfAbsent(
+    "testParallelismLimiter", TestParallelismLimiter::class
+) {
+    maxParallelUsages = 4
+}
+
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
+    usesService(testParallelismLimiter)
 }
 
 dependencies {
