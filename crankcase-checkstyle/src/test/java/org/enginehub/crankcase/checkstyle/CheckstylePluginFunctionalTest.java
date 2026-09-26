@@ -204,7 +204,7 @@ class CheckstylePluginFunctionalTest {
             """
         );
         BuildResult result = runner("printCheckstyleVersion").build();
-        assertThat(result).output().contains("checkstyle-version=13.7.0");
+        assertThat(result).output().contains("checkstyle-version=14.1.0");
     }
 
     @Test

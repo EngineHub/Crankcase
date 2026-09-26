@@ -18,7 +18,7 @@ pluginManagement {
     }
 }
 plugins {
-    id("org.enginehub.crankcase.repo-reconfiguration") version "0.1.0"
+    id("org.enginehub.crankcase.repo-reconfiguration") version "0.1.2"
 }
 dependencyResolutionManagement {
     versionCatalogs {

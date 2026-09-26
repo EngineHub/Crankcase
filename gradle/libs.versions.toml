@@ -2,14 +2,14 @@
 # SPDX-License-Identifier: CC0-1.0
 
 [versions]
-checkstyle = "13.7.0"
-errorProne = "2.48.0"
-junit = "6.1.0"
-crankcase = "0.1.1"
+checkstyle = "14.1.0"
+errorProne = "2.50.0"
+junit = "6.1.3"
+crankcase = "0.1.2"
 
 [libraries]
 levelHeadered = "net.octyl.level-headered:net.octyl.level-headered.gradle.plugin:0.1.2"
-publish-plugin = "com.gradle.publish:plugin-publish-plugin:2.1.1"
+publish-plugin = "com.gradle.publish:plugin-publish-plugin:2.2.1"
 
 crankcase-common = { module = "org.enginehub.crankcase:common", version.ref = "crankcase" }
 crankcase-checkstyle = { module = "org.enginehub.crankcase:checkstyle", version.ref = "crankcase" }
@@ -18,11 +18,11 @@ crankcase-publishing = { module = "org.enginehub.crankcase:publishing", version.
 
 japicmp = "me.champeau.gradle:japicmp-gradle-plugin:0.4.6"
 gson = "com.google.code.gson:gson:2.14.0"
-guava = "com.google.guava:guava:33.6.0-jre"
+guava = "com.google.guava:guava:33.7.1-jre"
 truth = "com.google.truth:truth:1.4.5"
-errorprone-gradle-plugin = "net.ltgt.gradle:gradle-errorprone-plugin:5.1.0"
+errorprone-gradle-plugin = "net.ltgt.gradle:gradle-errorprone-plugin:5.1.1"
 
-jspecify = "org.jspecify:jspecify:1.0.0"
+jspecify = "org.jspecify:jspecify:1.0.1"
 
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter-api.module = "org.junit.jupiter:junit-jupiter-api"
